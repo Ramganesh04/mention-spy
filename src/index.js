@@ -1,6 +1,6 @@
 import { Client, IntentsBitField, MessageActivityType } from "discord.js";
 import "dotenv/config";
-import { checkMentions } from "./mentions";
+import { checkMentions } from "./mentions.js";
 
 export const client = new Client({
   intents: [
@@ -12,15 +12,20 @@ export const client = new Client({
 });
 
 
-client.on("ready", (c) => {
-  console.log(`The Bot ${c.user.displayName} is ready!`);
+client.on("ready", (connectClient) => {
+  console.log(`The Bot ${connectClient.user.displayName} is ready!`);
 });
 
 client.on("messageCreate", async (message) => {
-  if (m.content.startsWith("hey mentionspy")) {
-    let { usersArray, count } = await checkMentions(message); 
-		message.reply(`The user ${usersArray[0].username} has mentioned ${usersArray[1].username} ${count} times!`)
-  }
+  if (message.content.startsWith("Hey mentionspy")) {
+		const usersArray = Array.from(message.mentions.users.values())
+		const user1 = usersArray[0];
+		const user2 = usersArray[1];
+		const messageLimit = 100;
+    let { count } = await checkMentions(message,user1,user2,messageLimit); 
+		message.reply(`The user ${user1.username} has mentioned ${user2.username} ${count} times!`);
+	}
 });
+
 
 client.login(process.env.TOKEN);
